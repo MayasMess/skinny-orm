@@ -172,3 +172,15 @@ class TestSkinnyOrm(unittest.TestCase):
             orm.select(RockBand).all()
         with self.assertRaises(sqlite3.OperationalError):
             orm.select(RockBand).first()
+
+    def test_update(self):
+        orm.update(self.goku)
+
+    def test_bulk_update(self):
+        orm.bulk_update(self.goku)
+
+    def test_upsert(self):
+        orm.upsert(self.goku)
+
+    def test_bulk_upsert(self):
+        orm.bulk_upsert(self.goku)
