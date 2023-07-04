@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "skinny-orm"
+version = "0.1.0"
+description = ""
+authors = ["MayasMess <***REMOVED***>"]
+readme = "README.md"
+packages = [{include = "skinny_orm"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+dateparser = "^1.1.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
