@@ -183,6 +183,18 @@ class Orm:
             cursor.close()
             raise e
 
+    def update(self, instance, commit=True):
+        raise NotImplementedError
+
+    def bulk_update(self, instances, commit=True):
+        raise NotImplementedError
+
+    def upsert(self, instance, commit=True):
+        raise NotImplementedError
+
+    def bulk_upsert(self, instances, commit=True):
+        raise NotImplementedError
+
     def delete(self, entity):
         self._re_init()
         self.current_entity = entity
