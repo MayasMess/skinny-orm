@@ -159,3 +159,16 @@ class TestSkinnyOrm(unittest.TestCase):
         orm = Orm(connection, create_tables_if_not_exists=False)
         with self.assertRaises(sqlite3.OperationalError):
             orm.insert(RockBand(name='Simple Plan'))
+
+    def test_select_not_existing_table(self):
+        animals = orm.select(Animal).all()
+        connection.execute('drop table Animal')
+        animals = orm.select(Animal).first()
+        connection.execute('drop table Animal')
+
+    def test_select_table_that_does_not_exists_raise_exception(self):
+        orm = Orm(connection, create_tables_if_not_exists=False)
+        with self.assertRaises(sqlite3.OperationalError):
+            orm.select(RockBand).all()
+        with self.assertRaises(sqlite3.OperationalError):
+            orm.select(RockBand).first()

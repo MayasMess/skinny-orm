@@ -111,6 +111,12 @@ class Orm:
             if commit:
                 self.connection.commit()
             return [self.current_entity(*self._parse_and_get_new_tuple(r)) for r in res]
+        except sqlite3.OperationalError as e:
+            if self.create_tables_if_not_exists and 'no such table' in str(e):
+                self._create_table(self.current_entity, cursor)
+                self.all(commit)
+            else:
+                raise e
         except Exception as e:
             cursor.close()
             raise e
@@ -123,6 +129,12 @@ class Orm:
                 return None
             cursor.close()
             return self.current_entity(*self._parse_and_get_new_tuple(res))
+        except sqlite3.OperationalError as e:
+            if self.create_tables_if_not_exists and 'no such table' in str(e):
+                self._create_table(self.current_entity, cursor)
+                self.first()
+            else:
+                raise e
         except Exception as e:
             cursor.close()
             raise e
