@@ -2,8 +2,10 @@ import unittest
 from dataclasses import dataclass
 from datetime import datetime
 import sqlite3
+from typing import List
 
-from skinny_orm.orm import Orm, ParseError
+from skinny_orm.exceptions import ParseError, NotValidComparator, NotValidEntity
+from skinny_orm.orm import Orm
 
 
 @dataclass
@@ -65,6 +67,7 @@ class TestSkinnyOrm(unittest.TestCase):
         self.assertGreater(len(users), 10)
 
     def test_simple_select(self):
+        orm.bulk_insert(self.users)
         users = orm.select(User).all()
         self.assertEqual(
             orm.current_query,
@@ -173,14 +176,42 @@ class TestSkinnyOrm(unittest.TestCase):
         with self.assertRaises(sqlite3.OperationalError):
             orm.select(RockBand).first()
 
+    def test_update_raise_not_valid_comparator(self):
+        with self.assertRaises(NotValidComparator):
+            orm.update(User).set(User.id > 2)
+
+    def test_update_set_clause_is_ok(self):
+        result = orm.update(User).set(User.name == 'Hello World').set(User.percentage == 5.5)
+        self.assertEqual(result.current_update_set, 'set name = ? , percentage = ? ')
+        self.assertEqual(result.current_params, ['Hello World', 5.5])
+
     def test_update(self):
-        orm.update(self.goku)
+        orm.delete(User).all(commit=True)
+        orm.bulk_insert(self.users)
+        orm.update(User).set(User.name == 'Hello World').set(User.percentage == 5.5).where(User.id < 5)
+        users: List[User] = orm.select(User).all()
+        for user in users:
+            if user.id < 5:
+                self.assertEqual(user.name, 'Hello World')
+                self.assertEqual(user.percentage, 5.5)
+        first_user: User = orm.select(User).where(User.id == 1).first()
+        first_user.name = first_user.misterify_name
+        orm.update(first_user).using(User.id)
+        res = orm.select(User).where(User.name == first_user.name).first()
+        self.assertEqual(res.name, 'Mr. Hello World')
 
     def test_bulk_update(self):
-        orm.bulk_update(self.goku)
+        users = [
+            User(id=1, name='Naruto', age=15, birth=datetime.now(), percentage=9.99),
+            User(id=2, name='Sasuke', age=15, birth=datetime.now(), percentage=9.89),
+            User(id=3, name='Sakura', age=15, birth=datetime.now(), percentage=9.79),
+        ]
+        orm.delete(User).all(commit=True)
+        orm.bulk_insert(self.users)
+        orm.bulk_update(users).using(User.id)
+        result = orm.select(User).all()
+        self.assertEqual(users, result[:3])
 
-    def test_upsert(self):
-        orm.upsert(self.goku)
-
-    def test_bulk_upsert(self):
-        orm.bulk_upsert(self.goku)
+    def test_select_none_entity(self):
+        with self.assertRaises(NotValidEntity):
+            orm.select(None).all()
