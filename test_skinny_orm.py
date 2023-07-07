@@ -212,6 +212,34 @@ class TestSkinnyOrm(unittest.TestCase):
         result = orm.select(User).all()
         self.assertEqual(users, result[:3])
 
+    def test_readme_example(self):
+        users = [
+            User(id=1, name='Naruto', age=15, birth=datetime(2020, 1, 1, 0, 0), percentage=9.99),
+            User(id=2, name='Sasuke', age=15, birth=datetime(2020, 1, 1, 0, 0), percentage=9.89),
+            User(id=3, name='Sakura', age=15, birth=datetime(2020, 1, 1, 0, 0), percentage=9.79),
+        ]
+        orm.bulk_insert(users)
+        naruto: User = orm.select(User).where(User.name == 'Naruto').first()
+        the_boys: list[User] = orm.select(User).where((User.name == 'Naruto') | (User.name == 'Sasuke')).all()
+        self.assertEqual(naruto, users[0])
+        self.assertEqual(the_boys, users[:2])
+
+        orm.update(User).set(User.age == 30).where(User.id == 1)
+        self.assertEqual(orm.select(User).where(User.id == 1).first(),
+                         User(id=1, name='Naruto', age=30, birth=datetime(2020, 1, 1, 0, 0), percentage=9.99))
+        naruto.age = 31
+        orm.update(naruto).using(User.id)
+        self.assertEqual(orm.select(User).where(User.id == 1).first(),
+                         User(id=1, name='Naruto', age=31, birth=datetime(2020, 1, 1, 0, 0), percentage=9.99))
+
+        users_20_year_later = [
+            User(id=1, name='Naruto', age=35, birth=datetime(2020, 1, 1, 0, 0), percentage=9.99),
+            User(id=2, name='Sasuke', age=35, birth=datetime(2020, 1, 1, 0, 0), percentage=9.89),
+            User(id=3, name='Sakura', age=35, birth=datetime(2020, 1, 1, 0, 0), percentage=9.79),
+        ]
+        orm.bulk_update(users_20_year_later).using(User.id)
+        self.assertEqual(orm.select(User).all(), users_20_year_later)
+
     def test_select_none_entity(self):
         with self.assertRaises(NotValidEntity):
             orm.select(None).all()

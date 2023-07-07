@@ -44,6 +44,5 @@ class BaseField:
         return self
 
     def __or__(self, other):
-        self.comparators.extend(other.comparators)
         self.and_or_s.append('or')
         return self
