@@ -243,3 +243,11 @@ class TestSkinnyOrm(unittest.TestCase):
     def test_select_none_entity(self):
         with self.assertRaises(NotValidEntity):
             orm.select(None).all()
+
+    def test_select_from_table_that_does_not_exists(self):
+        @dataclass
+        class TestTable:
+            test: str
+
+        test = orm.select(TestTable).all()
+        self.assertEqual(test, [])

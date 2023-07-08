@@ -72,7 +72,7 @@ class SqliteOrm(BaseOrm):
         except sqlite3.OperationalError as e:
             if self.create_tables_if_not_exists and 'no such table' in str(e):
                 self._create_table(self.current_entity, cursor)
-                self.all(commit)
+                return self.all(commit)
             else:
                 raise e
         except Exception as e:
