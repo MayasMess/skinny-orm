@@ -1,6 +1,9 @@
 # Skinny ORM
 
-Introducing "Skinny ORM" - a lightweight Python package that simplifies data storage, manipulation, and retrieval from a SQLite database using Python dataclasses.
+"Skinny ORM" - a lightweight Python package that simplifies data storage, manipulation, and retrieval from a SQLite (maybe others later) database using Python dataclasses.
+
+
+It's not really a "Relational Mapper". It's just a simple way to persist data.
 
 Installation:
 - 
@@ -35,7 +38,7 @@ class User:
 import sqlite3
 from skinny_orm.orm import Orm
 
-connection = sqlite3.connect(':memory:')
+connection = sqlite3.connect('database.db')
 orm = Orm(connection)
 ```
 
@@ -47,15 +50,15 @@ users = [
     User(id=2, name='Sasuke', age=15, birth=datetime.now(), percentage=9.89),
     User(id=3, name='Sakura', age=15, birth=datetime.now(), percentage=9.79),
 ]
-# Bulk insertions
+# Bulk insertions (if the table "User" does not exist, it will create it)
 orm.bulk_insert(users)
-# Some selections (always end with .first() or .all() )
+# Selections (always end with .first() or .all() )
 naruto: User = orm.select(User).where(User.name == 'Naruto').first()
 the_boys: list[User] = orm.select(User).where((User.name == 'Naruto') | (User.name == 'Sasuke')).all()
 
-# Update data
+# Update data by setting specific fields
 orm.update(User).set(User.age == 30).where(User.id == 1)
-# Or you can simply update the object
+# Or you can simply update the object with all the fields
 naruto.age = 30
 orm.update(naruto).using(User.id)
 
