@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "skinny_orm"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 dateparser = "^1.1.8"
 
 
