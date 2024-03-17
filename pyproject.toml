@@ -2,7 +2,7 @@
 name = "skinny-orm"
 version = "0.1.2"
 description = ""
-authors = ["MayasMess <test@test.com>"]
+authors = ["Mayas Nova"]
 readme = "README.md"
 packages = [{include = "skinny_orm"}]
 
